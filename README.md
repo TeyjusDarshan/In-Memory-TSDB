@@ -83,6 +83,8 @@ Cons of this approach:
 * There is a sperate thread which is scheduled every 30 seconds(configurable) which serializes and dumps all the newly added datapoints into files
 * On restarts, the files are replayed and the datapoints are loaded back into memory(asynchronously by a loader thread to speed up start up).
 * As we are interning the keys and values, those are also persisted to endure crashes.
+* Unlike datapoints, keys and values are persisted as and when new values are created
+NOTE: There is room for optimization here: Instead of opening and closing the key-value file for every key, we can keep it open and then gracefully handle closes during shutdowns manually. 
 * Keys and values are stored in txt append only files in the following format
   <pre>
     key1,1
