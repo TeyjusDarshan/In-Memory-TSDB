@@ -96,7 +96,7 @@ Cons of this approach:
 * There is also a cleanup thread which runs every 30 mins(configurable) which removes datapoints older than 24 hours(configurable).
 * This saves memory and the application does not bloat
 
-##APIs and Pagination
+## APIs and Pagination
 * Following REST API endpoints have been exposed to read and write data
   * GET /api/metric/network.usage?start=starttimestamp&end=endtimestamp&tag1=value1&tag2=value2
     * response: 200 OK
