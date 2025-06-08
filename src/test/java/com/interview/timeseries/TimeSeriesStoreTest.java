@@ -1,13 +1,20 @@
 package com.interview.timeseries;
 
 import com.interview.timeseries.model.DataPoint;
+import com.interview.timeseries.service.interfaces.FileSystemHelper;
+import com.interview.timeseries.service.interfaces.TagBank;
 import com.interview.timeseries.service.interfaces.TimeSeriesStore;
 import com.interview.timeseries.service.impl.TimeSeriesStoreImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.platform.commons.util.ReflectionUtils;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.xml.crypto.Data;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +28,27 @@ import static org.junit.Assert.*;
 public class TimeSeriesStoreTest {
     
     private TimeSeriesStore store;
+
+    TagBank tagBank;
+    FileSystemHelper fileSystemHelper;
+
     
     @Before
     public void setUp() {
-        store = new TimeSeriesStoreImpl();
+        tagBank = Mockito.mock(TagBank.class);
+        fileSystemHelper = Mockito.mock(FileSystemHelper.class);
+
+
+        Mockito.doReturn(null).when(fileSystemHelper).getAllFilesInDirectory(ArgumentMatchers.any());
+        Mockito.doReturn(new ArrayList<>()).when(fileSystemHelper).readPointsFromFile(ArgumentMatchers.any(File.class));
+
+        store = new TimeSeriesStoreImpl(tagBank, fileSystemHelper);
+
+        ReflectionTestUtils.setField(store, "dataTTL", 24);
+        ReflectionTestUtils.setField(store, "dataCleanupFrequencyInMins", 20);
+        ReflectionTestUtils.setField(store, "snapshotDirPath", "fakePath");
+
+
         store.initialize();
     }
     
@@ -39,6 +63,13 @@ public class TimeSeriesStoreTest {
         long now = System.currentTimeMillis();
         Map<String, String> tags = new HashMap<>();
         tags.put("host", "server1");
+        int i =0;
+        for(var tag: tags.entrySet()){
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getKey());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getKey());
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getValue());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getValue());
+        }
 
         assertNotNull(store.insert(now, "cpu.usage", 45.2, tags));
         
@@ -50,15 +81,35 @@ public class TimeSeriesStoreTest {
         assertEquals(now, results.get(0).getTimestamp());
         assertEquals("cpu.usage", results.get(0).getMetric());
         assertEquals(45.2, results.get(0).getValue(), 0.001);
-        //assertEquals("server1", results.get(0).getTags()[DataPoint.tagIdxMap.get("host")]);
+        int tagValidx = getValIdforTagKey(results, "host");
+        assertEquals(tagBank.getId("server1"), tagValidx);
     }
-    
+
+    private int getValIdforTagKey(List<DataPoint> results, String tagKey) {
+        Integer[] tagVals = results.get(0).getTagVals();
+        int tagKeyidxofHost = tagBank.getId(tagKey);
+        int tagValidx = -1;
+        for(int j =0;j < tagVals.length;j++){
+            if(tagVals[j] == tagKeyidxofHost){
+                tagValidx = tagVals[j + 1];
+            }
+        }
+        return tagValidx;
+    }
+
     @Test
     public void testQueryTimeRange() {
         // Insert test data at different times
         long start = System.currentTimeMillis();
         Map<String, String> tags = new HashMap<>();
         tags.put("host", "server1");
+        int i =0;
+        for(var tag: tags.entrySet()){
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getKey());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getKey());
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getValue());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getValue());
+        }
         
         store.insert(start, "cpu.usage", 45.2, tags);
         store.insert(start + 1000, "cpu.usage", 48.3, tags);
@@ -83,6 +134,20 @@ public class TimeSeriesStoreTest {
         Map<String, String> tags2 = new HashMap<>();
         tags2.put("host", "server2");
         tags2.put("datacenter", "us-west");
+        int i =0;
+        for(var tag: tags1.entrySet()){
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getKey());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getKey());
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getValue());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getValue());
+        }
+
+        for(var tag: tags2.entrySet()){
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getKey());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getKey());
+            Mockito.doReturn(i).when(tagBank).getIdAndStoreIfAbsent(tag.getValue());
+            Mockito.doReturn(i++).when(tagBank).getId(tag.getValue());
+        }
         
         store.insert(now, "cpu.usage", 45.2, tags1);
         store.insert(now, "cpu.usage", 42.1, tags2);
@@ -104,7 +169,8 @@ public class TimeSeriesStoreTest {
         
         // Verify
         assertEquals(1, results.size());
-        //assertEquals("server1", results.get(0).getTags()[DataPoint.tagIdxMap.get("host")]);
+        int tagValidx = getValIdforTagKey(results, "host");
+        assertEquals(tagBank.getId("server1"), tagValidx);
     }
     
     // TODO: Add more tests as needed

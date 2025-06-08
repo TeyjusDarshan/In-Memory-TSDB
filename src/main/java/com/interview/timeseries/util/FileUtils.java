@@ -10,17 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileUtils {
-    public static List<File> getOldFilesYoungerThanXHours(String folderPath, Long hours) {
-        File folder = new File(folderPath);
+    public static List<File> getOldFilesYoungerThanXHours(File[] files, long hours) {
         List<File> recentFiles = new ArrayList<>();
-        if (!folder.isDirectory()) {
-            System.err.println("provided directory does not exist");
-            return recentFiles;
-        }
         long nowMillis = System.currentTimeMillis();
         long cutoffMillis = nowMillis - hours * 60 * 60 * 1000;
 
-        File[] files = folder.listFiles();
         if (files == null) return recentFiles;
 
         for (File file : files) {
@@ -42,15 +36,5 @@ public class FileUtils {
         }
 
         return recentFiles;
-    }
-    public static List<DataPoint> readSerializedList(File file) {
-        try (FileInputStream fis = new FileInputStream(file);
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-
-            return (List<DataPoint>) ois.readObject();
-
-        } catch (IOException | ClassNotFoundException e) {
-            return List.of();
-        }
     }
 }

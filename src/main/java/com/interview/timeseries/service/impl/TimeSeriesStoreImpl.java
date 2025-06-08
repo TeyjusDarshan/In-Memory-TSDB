@@ -1,6 +1,7 @@
 package com.interview.timeseries.service.impl;
 
 import com.interview.timeseries.model.DataPoint;
+import com.interview.timeseries.service.interfaces.FileSystemHelper;
 import com.interview.timeseries.service.interfaces.TagBank;
 import com.interview.timeseries.service.interfaces.TimeSeriesStore;
 import com.interview.timeseries.util.FileUtils;
@@ -37,8 +38,15 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
     @Value("${snapshot.dirPath}")
     private String snapshotDirPath;
 
-    @Autowired
     private TagBank tagBank;
+
+    private FileSystemHelper fileSystemHelper;
+
+    @Autowired
+    public TimeSeriesStoreImpl(TagBank tagBank, FileSystemHelper fileSystemHelper){
+        this.tagBank = tagBank;
+        this.fileSystemHelper = fileSystemHelper;
+    }
 
 
 
@@ -117,10 +125,10 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
     }
 
     private void loadInitialData() {
-        List<File> files = FileUtils.getOldFilesYoungerThanXHours(snapshotDirPath, dataTTL);
+        File[] filesInDirectory = fileSystemHelper.getAllFilesInDirectory(snapshotDirPath);
+        List<File> files = FileUtils.getOldFilesYoungerThanXHours(filesInDirectory, dataTTL);
         for(File file: files) {
-            System.out.println("Loading all data from " + file.getName());
-            var points = FileUtils.readSerializedList(file);
+            var points = fileSystemHelper.readPointsFromFile(file);
             for(var point: points) {
                 insertDataPoint(point);
             }

@@ -32,6 +32,12 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.google.guava/guava
     implementation("com.google.guava:guava:33.4.8-jre")
+
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testImplementation("org.mockito:mockito-core:5.18.0")
+
+    // https://mvnrepository.com/artifact/org.springframework/org.springframework.test
+    testImplementation("org.springframework:spring-test:5.3.34")
 }
 
 java {
