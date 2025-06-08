@@ -99,7 +99,7 @@ Cons of this approach:
 ##APIs and Pagination
 * Following REST API endpoints have been exposed to read and write data
   * GET /api/metric/network.usage?start=starttimestamp&end=endtimestamp&tag1=value1&tag2=value2
-   * response: 200 OK
+    * response: 200 OK
      <pre>
       {
        "page": 1,
@@ -121,9 +121,9 @@ Cons of this approach:
        "lastPage": true
      }
      </pre> 
-   * NOTE: this is pagination response, as the query results can fetch million datapoints at once and we should not overload the network.
+    * NOTE: this is pagination response, as the query results can fetch million datapoints at once and we should not overload the network.
   * POST /api/metric
-   * body :
+    * body :
    <pre>
    {
        "timestamp": timestamp,
@@ -137,7 +137,7 @@ Cons of this approach:
    }
     
    </pre>
-   * Response: 200 OK
+    * Response: 200 OK
      <pre>
 
       {
