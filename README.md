@@ -84,7 +84,7 @@ Cons of this approach:
 * On restarts, the files are replayed and the datapoints are loaded back into memory(asynchronously by a loader thread to speed up start up).
 * As we are interning the keys and values, those are also persisted to endure crashes.
 * Unlike datapoints, keys and values are persisted as and when new values are created
-NOTE: There is room for optimization here: Instead of opening and closing the key-value file for every key, we can keep it open and then gracefully handle closes during shutdowns manually. 
+* NOTE: There is room for optimization here: Instead of opening and closing the key-value file for every key, we can keep it open and then gracefully handle closes during shutdowns manually. 
 * Keys and values are stored in txt append only files in the following format
   <pre>
     key1,1
@@ -95,6 +95,64 @@ NOTE: There is room for optimization here: Instead of opening and closing the ke
 * The interned keys and values are loaded back into memory during restarts
 * There is also a cleanup thread which runs every 30 mins(configurable) which removes datapoints older than 24 hours(configurable).
 * This saves memory and the application does not bloat
+
+##APIs and Pagination
+* Following REST API endpoints have been exposed to read and write data
+  * GET /api/metric/network.usage?start=starttimestamp&end=endtimestamp&tag1=value1&tag2=value2
+   * response: 200 OK
+     <pre>
+      {
+       "page": 1,
+       "pageSize": 14,
+       "totalEntries": 14,
+       "values": {
+         "1749403877": [
+             265.0
+         ],
+         "1749403876": [
+             339.0
+         ],
+         "1749403687": [
+             200.0
+         ],
+         "1749403879": [
+             176.0
+         ],
+       "lastPage": true
+     }
+     </pre> 
+   * NOTE: this is pagination response, as the query results can fetch million datapoints at once and we should not overload the network.
+  * POST /api/metric
+   * body :
+   <pre>
+   {
+       "timestamp": timestamp,
+       "metric": "network.usage",
+       "value": 5874.9,
+       "tags": {
+           "datacenter": "ap-east",
+           "customer_id": "teyjus",
+           "instance_type": "t3.xlarge"
+       }
+   }
+    
+   </pre>
+   * Response: 200 OK
+     <pre>
+
+      {
+       "timestamp": 1749403881,
+       "metric": "network.usage",
+       "value": 120.0,
+       "tags": {
+        "datacenter": "ap-east",
+        "customer_id": "sanchay",
+        "instance_type": "t3.xlarge"
+      }
+     }
+     </pre>
+
+   
 
 
 
