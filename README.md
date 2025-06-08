@@ -44,7 +44,8 @@ If we store 5 * 10^6 datapoints,
 
 Alternative approach:
 * Lets intern the tag keys and values to int and have a pool of tags and values
-* Instead of storing it in Map<String, String>, lets use a simple int[] which stores the keys and tags in the form: [kay1id, val1id, key2id, val2id,....]
+* Instead of storing it in Map<String, String>, lets use a simple int[] which stores the keys and tags in the form:
+<pre>[kay1id, val1id, key2id, val2id,....]</pre>
 * Lets also sort the array based on keys. 
 * The memory occupied by tags of one datapoint with 20 tags would be: 20 * 2 * 4 = 160 bytes which 5x smaller memory footprint.
 * so memory occupied by 5 * 10^6 datapoints = 160 * 5 * 10^6 = 800000000 bytes = 0.8GB
@@ -75,6 +76,23 @@ Cons of this approach:
 
 * This is very useful for time range queries with metrics.
 * Thread safe maps and operations have been used to avoid race conditions.
+* Reverse indexing does not seem to be very helpful here, as the filtering is very fast because of how we are storing the tags
+* Reverse indexing might just add to the memory without significant help.
+
+## persistence startegies
+* There is a sperate thread which is scheduled every 30 seconds(configurable) which serializes and dumps all the newly added datapoints into files
+* On restarts, the files are replayed and the datapoints are loaded back into memory(asynchronously by a loader thread to speed up start up).
+* As we are interning the keys and values, those are also persisted to endure crashes.
+* Keys and values are stored in txt append only files in the following format
+  <pre>
+    key1,1
+    key2,2
+    val1,3
+    ....
+  </pre>
+* The interned keys and values are loaded back into memory during restarts
+* There is also a cleanup thread which runs every 30 mins(configurable) which removes datapoints older than 24 hours(configurable).
+* This saves memory and the application does not bloat
 
 
 
