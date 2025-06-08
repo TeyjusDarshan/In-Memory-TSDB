@@ -57,7 +57,20 @@ Cons of this approach:
 * ConcurrentSkipListMap<Long, ConcurrentHashMap<String, Set<DataPoint>>> timestampMetricValMap;
 * This stores the data in the following format:
 
-<pre> ```json { "timestamp1": { "metric1": ["p1", "p2", "p3"], "metric2": ["p4", "p5", "p6"] }, "timestamp2": { "metric3": ["p9", "p8"], "metric4": ["p6"] } } ``` </pre>
+<pre> 
+ { timestamp1: 
+  { 
+   "metric1": [dp1, dp2, dp3], 
+   "metric2": [dp4, dp5] 
+  }, 
+  timestamp2: 
+  { 
+   "metric3": [dp9, dp8], 
+   "metric4": [dp6] 
+  } 
+ } 
+
+</pre>
 
 
 * This is very useful for time range queries with metrics.
