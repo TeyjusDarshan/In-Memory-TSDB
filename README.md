@@ -48,9 +48,31 @@ Alternative approach:
 * Lets also sort the array based on keys. 
 * The memory occupied by tags of one datapoint with 20 tags would be: 20 * 2 * 4 = 160 bytes which 5x smaller memory footprint.
 * so memory occupied by 5 * 10^6 datapoints = 160 * 5 * 10^6 = 800000000 bytes = 0.8GB
+* time taken to check if a datapoint matches a set of filters: O(n) where n is the maximum of tags a datapoint can have(max 10). which is reasonable.
 
 Cons of this approach:
 * Harder to manage in the flow of the program, but can be avoided with clean coding styles.
+
+### Data structures used for fast queries
+* ConcurrentSkipListMap<Long, ConcurrentHashMap<String, Set<DataPoint>>> timestampMetricValMap;
+* This stores the data in the following format:
+{
+ timesatmp1: {
+  metric1: Set<DataPoint>
+  metric2: Set<DataPoint>
+  ...
+ },
+ timestamp2:{
+  metric2: Set<DataPoint>,
+  ...
+ },
+ ....
+
+}
+
+* This is very useful for time range queries with metrics.
+* Thread safe maps and operations have been used to avoid race conditions.
+
 
 
 
