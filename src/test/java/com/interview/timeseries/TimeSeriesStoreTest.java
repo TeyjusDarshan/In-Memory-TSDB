@@ -86,7 +86,7 @@ public class TimeSeriesStoreTest {
     }
 
     private int getValIdforTagKey(List<DataPoint> results, String tagKey) {
-        Integer[] tagVals = results.get(0).getTagVals();
+        int[] tagVals = results.get(0).getTagVals();
         int tagKeyidxofHost = tagBank.getId(tagKey);
         int tagValidx = -1;
         for(int j =0;j < tagVals.length;j++){

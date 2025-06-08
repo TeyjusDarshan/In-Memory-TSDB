@@ -24,9 +24,9 @@ public class DataPoint implements Serializable {
 
     // [key1, val1, key2, val2,.....]
     // saves space compared to map and optimizes on memory to store many more points
-    private  Integer[] tagVals;
+    private  int[] tagVals;
 
-    public DataPoint(long timestamp, String metric, double value, Integer[] tagVals) {
+    public DataPoint(long timestamp, String metric, double value, int[] tagVals) {
         this.timestamp = timestamp;
         this.metric = metric;
         this.value = value;

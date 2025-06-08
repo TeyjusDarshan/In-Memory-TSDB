@@ -57,7 +57,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 
     @Override
     public DataPoint insert(long timestamp, String metric, double value, Map<String, String> tags) {
-        Integer[] tagVals = generateTagValArray(tags);
+        int[] tagVals = generateTagValArray(tags);
         DataPoint point = new DataPoint(timestamp, metric, value, tagVals);
         boolean isAddedToMap = timestampMetricValMap
                 .computeIfAbsent(timestamp, t -> new ConcurrentHashMap<>())
@@ -108,20 +108,20 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
         return this.timestampMetricValMap;
     }
 
-    private Integer[] generateTagValArray(Map<String, String> tags) {
+    private int[] generateTagValArray(Map<String, String> tags) {
         Map<Integer, Integer> m = new TreeMap<>();
         for(var tagVal: tags.entrySet()){
             int tagId = tagBank.getIdAndStoreIfAbsent(tagVal.getKey());
             int valId = tagBank.getIdAndStoreIfAbsent(tagVal.getValue());
             m.put(tagId, valId);
         }
-        List<Integer> tagValList = new ArrayList<>();
-        for(var tagVal: m.entrySet()){
-            tagValList.add(tagVal.getKey());
-            tagValList.add(tagVal.getValue());
+        int[] res = new int[m.size() * 2];
+        int i = 0;
+        for (var entry : m.entrySet()) {
+            res[i++] = entry.getKey();
+            res[i++] = entry.getValue();
         }
-
-        return tagValList.toArray(new Integer[0]);
+        return res;
     }
 
     private void loadInitialData() {
