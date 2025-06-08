@@ -29,6 +29,34 @@ Example: (1620000000000, "cpu.usage", 45.2, {"host": "server1", "datacenter": "u
 * Support tag-based filtering without full scans
 * Minimize memory usage where possible
 
+## Solutions 
+### Reduce Memory footprint of data points (!! 5X reduction in memory footprint !!)
+To solve this problem, I chose to avoid Map<String, String> to store tags. Maps have a huge memory overhead and at scale this can cause bottlenecks.
+Lets see this through a smaple calculation:
+Number of unique tags and values: 5000 approx (high cardinality vals)
+Lets say each datapoint has utmost 20 tags and values and these tags come from the pool of 6000.
+* HashMap Object overhead: 48 bytes
+* Internal Table array(size 32 load factor: 0.75): 144 bytes
+* Map Entry Objects: 32 bytes(per entry) * 20 = 640 bytes
+* total: 850 bytes(approx)
+If we store 5 * 10^6 datapoints,
+ Memory occupied by tags would be 850 * 5 * 10^6 =4,25,00,00,000 bytes = 4.25GB
+
+Alternative approach:
+Lets intern the tag keys and values to int and have a pool of tags and values
+And instead of storing it in Map<String, String>, lets use a simple int[] which stores the keys and tags in the form: [kay1id, val1id, key2id, val2id,....]
+Lets also sort the array based on keys. 
+The memory occupied by tags of one datapoint with 20 tags would be: 20 * 2 * 4 = 160 bytes which 5x smaller memory footprint.
+so memory occupied by 5 * 10^6 datapoints = 160 * 5 * 10^6 = 800000000 bytes = 0.8GB
+
+Cons of this approach:
+* Harder to manage in the flow of the program, but can be avoided with clean coding styles.
+
+
+
+
+
+
 
 
 
