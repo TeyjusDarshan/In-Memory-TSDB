@@ -43,11 +43,11 @@ If we store 5 * 10^6 datapoints,
  Memory occupied by tags would be 850 * 5 * 10^6 =4,25,00,00,000 bytes = 4.25GB
 
 Alternative approach:
-Lets intern the tag keys and values to int and have a pool of tags and values
-And instead of storing it in Map<String, String>, lets use a simple int[] which stores the keys and tags in the form: [kay1id, val1id, key2id, val2id,....]
-Lets also sort the array based on keys. 
-The memory occupied by tags of one datapoint with 20 tags would be: 20 * 2 * 4 = 160 bytes which 5x smaller memory footprint.
-so memory occupied by 5 * 10^6 datapoints = 160 * 5 * 10^6 = 800000000 bytes = 0.8GB
+* Lets intern the tag keys and values to int and have a pool of tags and values
+* Instead of storing it in Map<String, String>, lets use a simple int[] which stores the keys and tags in the form: [kay1id, val1id, key2id, val2id,....]
+* Lets also sort the array based on keys. 
+* The memory occupied by tags of one datapoint with 20 tags would be: 20 * 2 * 4 = 160 bytes which 5x smaller memory footprint.
+* so memory occupied by 5 * 10^6 datapoints = 160 * 5 * 10^6 = 800000000 bytes = 0.8GB
 
 Cons of this approach:
 * Harder to manage in the flow of the program, but can be avoided with clean coding styles.
