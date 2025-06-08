@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.interview.timeseries.TimeSeriesStoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-06-08T07:55:43" hostname="Joeys-MacBook-Air.local" time="0.024">
+  <properties/>
+  <testcase name="testQueryTimeRange" classname="com.interview.timeseries.TimeSeriesStoreTest" time="0.014"/>
+  <testcase name="testQueryWithFilters" classname="com.interview.timeseries.TimeSeriesStoreTest" time="0.004"/>
+  <testcase name="testInsertAndQueryBasic" classname="com.interview.timeseries.TimeSeriesStoreTest" time="0.005"/>
+  <system-out><![CDATA[File Ignored from loading
+File Ignored from loading
+File Ignored from loading
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
